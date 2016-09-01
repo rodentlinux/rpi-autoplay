@@ -1,0 +1,12 @@
+[Unit]
+Description=Run Autorun Script
+ConditionPathExists=/boot/autorun.sh
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/bash -x /boot/autorun.sh
+Restart=always
+RestartSec=0s
+
+[Install]
+WantedBy=multi-user.target

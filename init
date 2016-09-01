@@ -1,0 +1,21 @@
+#!/usr/bin/dash -x
+
+mount -t devtmpfs -o rw,noatime,size=257632k,nr_inodes=64408,mode=755 devtmpfs /dev
+mount -t proc -o rw,nosuid,nodev,noexec,noatime proc /proc
+mount -t tmpfs -o rw,nosuid,nodev,mode=755 tmpfs /run
+
+echo -n "Waiting for /dev/mmcblk0p1"
+while [ ! -b /dev/mmcblk0p1 ]; do
+  echo .
+  sleep 0.2
+done
+
+fsck.vfat -va /dev/mmcblk0p1
+mount -t vfat -o ro,noatime,fmask=0133,dmask=0022,utf8 /dev/mmcblk0p1 /boot
+for i in /boot/root-*.sqfs; do
+  image="$i"
+done
+mount -t squashfs -o ro,noatime,loop "$image" /sysroot
+mount --move /boot /sysroot/boot
+
+exec switch_root /sysroot /sbin/init

@@ -1,0 +1,11 @@
+[Unit]
+Description=Writable %f
+Conflicts=umount.target
+Wants=pre-overlay@%p.service
+After=pre-overlay@%p.service
+
+[Mount]
+What=overlay
+Where=/root
+Type=overlay
+Options=lowerdir=/root,upperdir=/run/root,workdir=/run/workdir/root

@@ -1,0 +1,129 @@
+#!/bin/bash
+
+configfs='/sys/kernel/config'
+gadget='gadget1'
+udc='20980000.usb'
+
+manufacturer='Broadcom'
+product='Raspberry Pi'
+
+maxpower=400
+
+func='acm.0 rndis.0'
+func_rndis_0_host_addr='02:machine-id'
+func_rndis_0_dev_addr='06:machine-id'
+
+conf='config'
+conf_config_desc='ACM + RNDIS'
+conf_config_func='acm.0 rndis.0'
+
+set -e
+
+mac_from_id() {
+  local mac="$1"
+  local id="$2"
+  local tail
+  local i
+
+  for ((i=0;i<5;i++)); do
+    tail="${id#??}"
+    mac="$mac:${id%$tail}"
+    id="$tail"
+  done
+  echo "$mac"
+}
+
+case "$1" in
+up)
+  read -r machine_id < /etc/machine-id
+
+  mkdir "$configfs/usb_gadget/$gadget"
+  cd "$configfs/usb_gadget/$gadget"
+
+  for f in $func; do
+    mkdir "functions/$f"
+    case ${f%%.*} in
+    mass_storage)
+      for ((i=0;;i++)); do
+        tmp="func_${f//./_}_lun_${i}_file"
+        tmp="${!tmp}"
+        [[ -n "$tmp" ]] || break
+        mkdir -p "functions/$f/lun.$i"
+        echo "$tmp" > "functions/$f/lun.$i/file"
+      done
+      ;;
+    ecm|eem|rndis)
+      for file in dev_addr host_addr; do
+        tmp="func_${f//./_}_$file"
+        tmp="${!tmp}"
+        if [[ -n "$tmp" ]]; then
+          case "$tmp" in
+          ??:machine-id)
+            mac_from_id "${tmp%%:*}" "$machine_id";;
+          *)
+            echo "$tmp";;
+          esac > "functions/$f/$file"
+        fi
+      done
+      ;;
+    esac
+  done
+
+  i=0
+  for c in $conf; do
+    i=$((i+1))
+
+    mkdir "configs/$c.$i"
+    [[ -z "$maxpower" ]] || echo "$maxpower" > "configs/$c.$i/MaxPower"
+    mkdir "configs/$c.$i/strings/0x409"
+    tmp="conf_${c}_desc"
+    tmp="${!tmp}"
+    [[ -z "$tmp" ]] || echo "$tmp" > "configs/$c.$i/strings/0x409/configuration"
+
+    tmp="conf_${c}_func"
+    for f in ${!tmp}; do
+      ln -s "functions/$f" "configs/$c.$i"
+    done
+  done
+
+  mkdir strings/0x409
+  echo "$manufacturer" > strings/0x409/manufacturer
+  echo "$product" > strings/0x409/product
+  echo "$machine_id" > strings/0x409/serialnumber
+
+  echo '0x04e8' > idVendor
+  echo '0x0106' > idProduct
+
+  echo "$udc" > UDC
+  ;;
+down)
+  cd "$configfs/usb_gadget/$gadget"
+  echo > UDC
+  rmdir strings/*
+  rmdir configs/*/strings/*
+  for i in configs/*/*; do
+    [[ ! -L "$i" ]] || rm "$i"
+  done
+  rmdir configs/*
+  for i in functions/*; do
+    case "$i" in
+    functions/mass_storage.*)
+      for j in "$i"/lun.*; do
+        if [[ "${j#$i/lun.}" -gt 0 ]]; then
+          rmdir "$j"
+        fi
+      done
+      ;;
+    esac
+  done
+  rmdir functions/*
+  cd ..
+  rmdir "$gadget"
+  ;;
+*)
+  echo 'up or down?' >&2
+  exit 1
+  ;;
+esac
+
+# vim: set ts=2 sw=2 et:

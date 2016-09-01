@@ -1,0 +1,13 @@
+#!/bin/bash
+
+while read -r line; do
+  if [[ "${line%%	*}" = 'Revision' ]]; then
+    [[ "${line##*: }" != '900093' ]] || zero=yes
+    break
+  fi
+done < /proc/cpuinfo
+
+[[ $zero ]] || exit 0
+
+mkdir -p "$1/multi-user.target.wants"
+ln -s '/etc/systemd/system/multigadget.service' "$1/multi-user.target.wants/multigadget.service"
