@@ -9,13 +9,13 @@ product='Raspberry Pi'
 
 maxpower=400
 
-func='acm.0 rndis.0'
-func_rndis_0_host_addr='02:machine-id'
-func_rndis_0_dev_addr='06:machine-id'
+func='acm.0 ecm.0'
+func_ecm_0_host_addr='02:machine-id'
+func_ecm_0_dev_addr='06:machine-id'
 
 conf='config'
-conf_config_desc='ACM + RNDIS'
-conf_config_func='acm.0 rndis.0'
+conf_config_desc='ACM + ECM'
+conf_config_func='acm.0 ecm.0'
 
 set -e
 
