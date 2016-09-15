@@ -1,0 +1,6 @@
+[Match]
+Name=et
+
+[Network]
+DHCP=v4
+DNSSEC=no

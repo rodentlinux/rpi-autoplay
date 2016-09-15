@@ -1,0 +1,6 @@
+[Match]
+Name=wi
+
+[Network]
+DHCP=v4
+DNSSEC=no

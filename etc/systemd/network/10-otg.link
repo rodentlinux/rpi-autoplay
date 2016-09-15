@@ -1,0 +1,5 @@
+[Match]
+Path=platform-20980000.usb
+
+[Link]
+Name=otg

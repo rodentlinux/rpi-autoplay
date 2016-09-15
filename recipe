@@ -36,6 +36,7 @@ config-rpi-autoplay() {
     'uname' 'date'
     'vim-extra' 'gnu-netcat'
     'omxplayer' 'dbuscontrol'
+    'crda' 'wpa_supplicant' 'wpa_cli'
   )
   files=(
     '#/locales.d/99-raspberrypi'
