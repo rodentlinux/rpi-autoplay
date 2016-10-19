@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/arm 4.7.3 Kernel Configuration
+# Linux/arm 4.7.8 Kernel Configuration
 #
 CONFIG_ARM=y
 CONFIG_SYS_SUPPORTS_APM_EMULATION=y
@@ -1695,6 +1695,7 @@ CONFIG_SND_BCM2835_SOC_I2S=y
 # CONFIG_SND_AUDIOINJECTOR_PI_SOUNDCARD is not set
 # CONFIG_SND_DIGIDAC1_SOUNDCARD is not set
 # CONFIG_SND_BCM2708_SOC_DIONAUDIO_LOCO is not set
+# CONFIG_SND_BCM2708_SOC_ALLO_PIANO_DAC is not set
 # CONFIG_SND_DESIGNWARE_I2S is not set
 
 #
